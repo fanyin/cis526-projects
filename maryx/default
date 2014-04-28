@@ -35,12 +35,8 @@ for filename in glob.glob('data/*.*'):
           multidict[lang].add(word)
     sys.stderr.write("Put the words in the file " + filename + " in dict\n")
 
-for lang in languages:
-    print lang
-
 # Counts whether each word appears in each dictionary
 for i, line in enumerate(open("data/test/" + opts.test)):
-  words = []
   if len(line)>1: # ignore newlines
     words = line.split()
     # Checks if each word is in the wiki or text article or not
@@ -50,11 +46,10 @@ for i, line in enumerate(open("data/test/" + opts.test)):
           languages[lang] += 1
     first = str(max(languages.iteritems(), key=operator.itemgetter(1))[0])
     second = str(max(languages.iteritems(), key=operator.itemgetter(1))[1])
-    if (languages[first] == languages[second]):
+    if (languages[first] == 0):
       print 'uncertain'
     else:
       print first
   # Resets language dict for next sentence
   for lang in languages:
-    #print lang
     languages[lang] = 0
