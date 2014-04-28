@@ -22,7 +22,7 @@ languages = defaultdict(int)
 
 # Makes a dictionary of all the words for each wiki article
 # Format [{english : ['a', 'the', 'cake']}]
-multidict = defaultdict(list)
+multidict = defaultdict(set)
 
 for filename in glob.glob('data/*.*'):
   with open(filename) as f:
@@ -32,8 +32,11 @@ for filename in glob.glob('data/*.*'):
       words = line.split()
       for word in words:
         if word not in multidict[lang]:
-          multidict[lang].append(word)
+          multidict[lang].add(word)
     sys.stderr.write("Put the words in the file " + filename + " in dict\n")
+
+for lang in languages:
+    print lang
 
 # Counts whether each word appears in each dictionary
 for i, line in enumerate(open("data/test/" + opts.test)):
@@ -51,8 +54,7 @@ for i, line in enumerate(open("data/test/" + opts.test)):
       print 'uncertain'
     else:
       print first
-  else:
-    print ""
   # Resets language dict for next sentence
   for lang in languages:
+    #print lang
     languages[lang] = 0
