@@ -46,7 +46,6 @@ for filename in glob.glob('data/*.*'):
         total += counts[trigram[0]]
     for trigram in sorted_trigrams[-3000:]:
         multidict[lang][trigram[0]] = math.log(counts[trigram[0]] / total)
-        print counts[trigram[0]]
     
     sys.stderr.write("Put the words in the file " + filename + " in dict\n")
 
@@ -66,8 +65,13 @@ for i, line in enumerate(open("data/test/" + opts.test)):
             languages[lang] += multidict[lang][trigram]
           else:
             languages[lang] += min_prob
-    first = str(max(languages.iteritems(), key=operator.itemgetter(1))[0])
-    print first
+    first = str(sorted(languages.iteritems(), key=operator.itemgetter(1))[-1][0])
+    second = str(sorted(languages.iteritems(), key=operator.itemgetter(1))[-2][0])
+    print first + "\n" + str(languages[first])
+    print second + "\n" + str(languages[second])
+    if languages[first] == languages[second] : 
+        print "WTFFFFFFFFFF"
+    print "--------"
   # Resets language dict for next sentence
   for lang in languages:
     languages[lang] = 0
