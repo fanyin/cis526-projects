@@ -25,30 +25,30 @@ languages = defaultdict(float)
 # Format [{english : ['a', 'the', 'cake']}]
 multidict = {}
 
+counts = {}
+
 for filename in glob.glob('data/*.*'):
   with open(filename) as f:
     lang = filename[10:]
-    multidict[lang] = {}
-
-    counts = defaultdict(int)
-
+    counts[lang] = defaultdict(int)
     for line in f:
       words = line.split()
       for word in words:
         new_word = " " + word + " "
         for i in xrange(len(new_word) - 2):
-          counts[new_word[i:i+3]] += 1
-
-    sorted_trigrams = sorted(counts.iteritems(), key = operator.itemgetter(1))
+          counts[lang][new_word[i:i+3]] += 1
+    sys.stderr.write("Put the words in the file " + filename + " in dict\n")
+###############
+for lang in counts:
+    multidict[lang] = {}
+    sorted_trigrams = sorted(counts[lang].iteritems(), key = operator.itemgetter(1))
 
     total = 0.0
     for trigram in sorted_trigrams[-3000:]:
-        total += counts[trigram[0]]
+        total += counts[lang][trigram[0]]
     for trigram in sorted_trigrams[-3000:]:
-        multidict[lang][trigram[0]] = math.log(counts[trigram[0]] / total)
+        multidict[lang][trigram[0]] = math.log(counts[lang][trigram[0]] / total)
     
-    sys.stderr.write("Put the words in the file " + filename + " in dict\n")
-
 min_prob = -1000000
 
 # Counts whether each word appears in each dictionary
@@ -67,11 +67,13 @@ for i, line in enumerate(open("data/test/" + opts.test)):
             languages[lang] += min_prob
     first = str(sorted(languages.iteritems(), key=operator.itemgetter(1))[-1][0])
     second = str(sorted(languages.iteritems(), key=operator.itemgetter(1))[-2][0])
-    print first + "\n" + str(languages[first])
-    print second + "\n" + str(languages[second])
-    if languages[first] == languages[second] : 
-        print "WTFFFFFFFFFF"
-    print "--------"
+    #print first + "\n" + str(languages[first])
+    #print second + "\n" + str(languages[second])
+    #if languages[first] == languages[second] : 
+    #    print "WTFFFFFFFFFF"
+    #print "--------"
+    print first
+
   # Resets language dict for next sentence
   for lang in languages:
     languages[lang] = 0
