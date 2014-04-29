@@ -18,21 +18,32 @@ optparser = optparse.OptionParser()
 optparser.add_option("-t", "--test", dest="test", default="test.small", help="Test set (default=test.small)")
 (opts, _) = optparser.parse_args()
 
-languages = defaultdict(int)
+languages = defaultdict(lambda : 1.0)
 
 # Makes a dictionary of all the words for each wiki article
 # Format [{english : ['a', 'the', 'cake']}]
-multidict = defaultdict(set)
+multidict = {}
 
 for filename in glob.glob('data/*.*'):
   with open(filename) as f:
     lang = filename[10:]
     languages[lang] = 0
+    multidict[lang] = {}
+
+    counts = defaultdict(int)
+    total = 0.0
+
     for line in f:
       words = line.split()
       for word in words:
-        if word not in multidict[lang]:
-          multidict[lang].add(word)
+        new_word = " " + word + " "
+        for i in xrange(len(new_word) - 2):
+          counts[new_word[i:i+3]] += 1
+          total += 1
+
+    for trigram in counts:
+        multidict[lang][trigram] = counts[trigram] / total
+    
     sys.stderr.write("Put the words in the file " + filename + " in dict\n")
 
 # Counts whether each word appears in each dictionary
@@ -41,15 +52,17 @@ for i, line in enumerate(open("data/test/" + opts.test)):
     words = line.split()
     # Checks if each word is in the wiki or text article or not
     for word in words:
-      for lang in multidict:
-        if word in multidict[lang]:
-          languages[lang] += 1
+      new_word = " " + word + " "
+      for i in xrange(len(new_word) - 2):
+        trigram = new_word[i:i+3]
+        for lang in multidict:
+          if trigram in multidict[lang]:
+            languages[lang] *= multidict[lang][trigram]
     first = str(max(languages.iteritems(), key=operator.itemgetter(1))[0])
-    second = str(max(languages.iteritems(), key=operator.itemgetter(1))[1])
     if (languages[first] == 0):
       print 'uncertain'
     else:
       print first
   # Resets language dict for next sentence
   for lang in languages:
-    languages[lang] = 0
+    languages[lang] = 1.0
