@@ -31,7 +31,6 @@ for filename in glob.glob('data/*.*'):
     multidict[lang] = {}
 
     counts = defaultdict(int)
-    total = 0.0
 
     for line in f:
       words = line.split()
@@ -39,14 +38,18 @@ for filename in glob.glob('data/*.*'):
         new_word = " " + word + " "
         for i in xrange(len(new_word) - 2):
           counts[new_word[i:i+3]] += 1
-          total += 1
 
-    for trigram in counts:
-        multidict[lang][trigram] = math.log(counts[trigram] / total)
+    sorted_trigrams = sorted(counts.iteritems(), key = operator.itemgetter(1))
+
+    total = 0.0
+    for trigram in sorted_trigrams[-3000:]:
+        total += counts[trigram[0]]
+    for trigram in sorted_trigrams[-3000:]:
+        multidict[lang][trigram[0]] = math.log(counts[trigram[0]] / total)
     
     sys.stderr.write("Put the words in the file " + filename + " in dict\n")
 
-min_prob = -1000
+min_prob = -1000000
 
 # Counts whether each word appears in each dictionary
 for i, line in enumerate(open("data/test/" + opts.test)):
