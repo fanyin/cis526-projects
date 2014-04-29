@@ -27,7 +27,10 @@ multidict = {}
 
 counts = {}
 
+fcount = 0
+
 for filename in glob.glob('data/*.*'):
+  fcount += 1
   with open(filename) as f:
     lang = filename[10:]
     counts[lang] = defaultdict(int)
@@ -49,6 +52,7 @@ for lang in counts:
     for trigram in sorted_trigrams[-3000:]:
         multidict[lang][trigram[0]] = math.log(counts[lang][trigram[0]] / total)
     
+print fcount
 min_prob = -1000000
 
 # Counts whether each word appears in each dictionary
@@ -72,7 +76,7 @@ for i, line in enumerate(open("data/test/" + opts.test)):
     #if languages[first] == languages[second] : 
     #    print "WTFFFFFFFFFF"
     #print "--------"
-    print first
+    #print first
 
   # Resets language dict for next sentence
   for lang in languages:
