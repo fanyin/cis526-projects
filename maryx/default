@@ -46,7 +46,7 @@ for filename in glob.glob('data/*.*'):
         total += counts[trigram[0]]
     for trigram in sorted_trigrams[-3000:]:
         multidict[lang][trigram[0]] = math.log(counts[trigram[0]] / total)
-        print multidict[lang][trigram[0]]
+        print counts[trigram[0]]
     
     sys.stderr.write("Put the words in the file " + filename + " in dict\n")
 
