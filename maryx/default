@@ -5,6 +5,7 @@ from collections import defaultdict
 import glob # for file opening
 import json
 import operator
+import math
 
 '''
 Default system
@@ -18,7 +19,7 @@ optparser = optparse.OptionParser()
 optparser.add_option("-t", "--test", dest="test", default="test.small", help="Test set (default=test.small)")
 (opts, _) = optparser.parse_args()
 
-languages = defaultdict(lambda : 1.0)
+languages = defaultdict(float)
 
 # Makes a dictionary of all the words for each wiki article
 # Format [{english : ['a', 'the', 'cake']}]
@@ -27,7 +28,6 @@ multidict = {}
 for filename in glob.glob('data/*.*'):
   with open(filename) as f:
     lang = filename[10:]
-    languages[lang] = 0
     multidict[lang] = {}
 
     counts = defaultdict(int)
@@ -42,9 +42,11 @@ for filename in glob.glob('data/*.*'):
           total += 1
 
     for trigram in counts:
-        multidict[lang][trigram] = counts[trigram] / total
+        multidict[lang][trigram] = math.log(counts[trigram] / total)
     
     sys.stderr.write("Put the words in the file " + filename + " in dict\n")
+
+min_prob = -1000
 
 # Counts whether each word appears in each dictionary
 for i, line in enumerate(open("data/test/" + opts.test)):
@@ -57,12 +59,11 @@ for i, line in enumerate(open("data/test/" + opts.test)):
         trigram = new_word[i:i+3]
         for lang in multidict:
           if trigram in multidict[lang]:
-            languages[lang] *= multidict[lang][trigram]
+            languages[lang] += multidict[lang][trigram]
+          else:
+            languages[lang] += min_prob
     first = str(max(languages.iteritems(), key=operator.itemgetter(1))[0])
-    if (languages[first] == 0):
-      print 'uncertain'
-    else:
-      print first
+    print first
   # Resets language dict for next sentence
   for lang in languages:
-    languages[lang] = 1.0
+    languages[lang] = 0
